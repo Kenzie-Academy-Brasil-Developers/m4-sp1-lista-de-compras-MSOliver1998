@@ -1,4 +1,4 @@
-import { NextFunction,Request,Response } from "express"
+import { NextFunction,request,Request,Response } from "express"
 import { list } from "./database"
 
 export const checkBodyRequestKeys=(request:Request, response:Response, next:NextFunction): void | Response=>{
@@ -18,31 +18,35 @@ export const checkBodyDataRequestKeys=(request:Request,response:Response,next:Ne
     const requiredKeys=['name','quantity']
     let allDataHaveRequeridKeys=true
 
-
-    if(request.method==="PATCH"){
-        const hasData=Object.keys(request.body).includes('data')
-        hasData && checkData()
-    }else{
-        checkData()
-    }
-
     function checkData(){
         const dataIsArray=Array.isArray(request.body.data)
     
         if(dataIsArray && request.body.data.length>0){
-            request.body.data.map((el:{name?:string,quantity?:string})=>{
+            request.body.data.map((el:{name:string,quantity:string})=>{
+                const types=typeof(el.name)==='string' && typeof(el.quantity)==="string" 
+                types==false &&  response.status(400).json({"message":"data is send error data:[{name:string,quantity:string}]"})
                 const req=requiredKeys.every(key=>Object.keys(el).includes(key))
                 if(req===false){
                     allDataHaveRequeridKeys=false
                 }
             })
         }else{
-            response.status(400).json({"message":"data is send error data:[{name:string,quantity:number}]"})
+            response.status(400).json({"message":"data is send error data:[{name:string,quantity:string}]"})
         }
 
     }
 
+    checkData()
+
     allDataHaveRequeridKeys ? next() : response.status(400).json(`keys [${requiredKeys}] are required in alls data {}`)
+}
+
+export const checkNameItem=(request:Request,response:Response,next:NextFunction)=>{
+    request.body==undefined && response.status(400).json({"message":"bad request body can not send empty"})
+    const {data}=list[request.indexList]
+    const index=data.findIndex(el=>el.name===request.params.name)
+    index>=0 ? request.indexItem=index : response.status(404).json({"message":`${request.params.name} not found`})
+    next()
 }
 
 export const checkIdExist=(request:Request,response:Response,next:NextFunction)=>{
