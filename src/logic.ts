@@ -19,13 +19,19 @@ export const searchItem=(request:Request,response:Response)=>{
     response.status(201).json(listItem)
 }
 
-export const deleteItemInList=(request:Request,response:Response)=>{
+export const deleteList=(request:Request,response:Response)=>{
     list.splice(request.indexList,1)
     response.status(201).json()
 }
 
+export const deleteItemInList=(request:Request,response:Response)=>{
+    list[request.indexList].data.splice(request.indexItem,1)
+    response.status(201).json()
+}
+
 export const updateList=(request:Request, response:Response)=>{
-    const newList={...list[request.indexList], ...request.body}
-    list.splice(request.indexList,1,newList)
-    response.status(201).json(newList)
+    const listSelect=(list[request.indexList].data[request.indexItem])
+    listSelect.name=request.body.name || listSelect.name
+    listSelect.quantity=request.body.quantity || listSelect.quantity
+    response.status(200).json(listSelect)
 }
