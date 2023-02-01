@@ -22,16 +22,16 @@ export const checkBodyDataRequestKeys=(request:Request,response:Response,next:Ne
         const dataIsArray=Array.isArray(request.body.data)
     
         if(dataIsArray && request.body.data.length>0){
-            request.body.data.map((el:{name:string,quantity:number})=>{
-                const types=typeof(el.name)==='string' && typeof(el.quantity)==="number" 
-                types==false &&  response.status(400).json({"message":"data is send error data:[{name:string,quantity:number}]"})
+            request.body.data.map((el:{name:string,quantity:string})=>{
+                const types=typeof(el.name)==='string' && typeof(el.quantity)==="string" 
+                types==false &&  response.status(400).json({"message":"data is send error data:[{name:string,quantity:string}]"})
                 const req=requiredKeys.every(key=>Object.keys(el).includes(key))
                 if(req===false){
                     allDataHaveRequeridKeys=false
                 }
             })
         }else{
-            response.status(400).json({"message":"data is send error data:[{name:string,quantity:number}]"})
+            response.status(400).json({"message":"data is send error data:[{name:string,quantity:string}]"})
         }
 
     }
